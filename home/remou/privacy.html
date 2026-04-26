@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy – Remou</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #1a1a1a;
+      --grey: #5a5a5a;
+      --border: #e8e8e8;
+      --white: #ffffff;
+      --max-width: 620px;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--black);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 64px 24px 80px;
+    }
+
+    .back {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #aaa;
+      text-decoration: none;
+      margin-bottom: 48px;
+    }
+    .back:hover { color: var(--black); }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.8px;
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--black);
+      margin: 36px 0 10px;
+    }
+
+    p {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--grey);
+      margin-bottom: 14px;
+    }
+    p:last-child { margin-bottom: 0; }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 24px;
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .footer-inner span { font-size: 13px; color: #aaa; }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <a class="back" href="index.html">← Remou</a>
+
+    <h1>Privacy</h1>
+
+    <h2>What Remou can see</h2>
+    <p>
+      Remou is a Safari extension that runs entirely inside your browser. It reads the content
+      of Outlook Web pages in order to restructure email threads into a chat-like layout.
+      This processing happens locally on your device — no email content is ever sent anywhere.
+    </p>
+
+    <h2>Data storage</h2>
+    <p>
+      Remou stores only your preferences (for example, whether the extension is enabled) using
+      Safari's standard extension storage API. This data never leaves your device.
+    </p>
+
+    <h2>Network activity</h2>
+    <p>
+      Remou makes no network requests of its own. It does not connect to any external server,
+      collect analytics, or transmit any information about you or your emails.
+    </p>
+
+    <h2>Bug reporting</h2>
+    <p>
+      If you choose to report a bug, diagnostic information about your browser environment
+      and the extension's state may be shared in order to help diagnose the issue. This only
+      happens when you explicitly initiate a bug report — nothing is sent automatically.
+    </p>
+
+    <h2>Third parties</h2>
+    <p>
+      Remou does not share any data with third parties except as described above (bug reporting).
+      There are no ads, no trackers, and no analytics SDKs included in the extension.
+    </p>
+
+    <hr>
+
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span>© 2026 Yago Arconada</span>
+    </div>
+  </footer>
+
+</body>
+</html>
