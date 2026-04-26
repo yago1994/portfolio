@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timeline – Santiago Arconada Alvarez</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8f7f5;
+      --surface: #ffffff;
+      --text: #2a2a2a;
+      --muted: #626262;
+      --line: #d6d3cc;
+      --accent-learn: #4a7c9e;
+      --accent-do: #6b5b95;
+      --accent-celebrate: #c0803a;
+      --accent-create: #c96b50;
+      --tag-radius: 4px;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 60px 40px 40px;
+      text-align: center;
+    }
+    header a.back {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    header a.back:hover { color: var(--text); }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-top: 16px;
+      color: var(--text);
+    }
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 8px;
+      font-weight: 400;
+    }
+
+    /* ── Column labels ── */
+    .col-labels {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .col-label {
+      width: calc(50% - 36px);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.6;
+    }
+    .col-label.right { text-align: left; }
+    .col-label.left  { text-align: right; }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      padding: 0 40px 36px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Timeline wrapper ── */
+    .timeline-outer {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      position: relative;
+    }
+
+    /* vertical spine */
+    .timeline-outer::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: var(--line);
+      transform: translateX(-50%);
+      z-index: 0;
+    }
+
+    /* ── Year section ── */
+    .year-section {
+      position: relative;
+      margin-top: 40px;
+    }
+    .year-section:first-child { margin-top: 0; }
+
+    /* ── Year marker — sticky ── */
+    .year-marker {
+      position: sticky;
+      top: 24px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 14px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .year-marker span {
+      background: var(--bg);
+      padding: 5px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      pointer-events: all;
+      /* subtle shadow so it reads over cards */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    /* ── Entry ── */
+    .entry {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    /* left = Do + Learn */
+    .entry.left {
+      flex-direction: row-reverse;
+      padding-right: calc(50% + 28px);
+    }
+    /* right = Create + Celebrate */
+    .entry.right {
+      flex-direction: row;
+      padding-left: calc(50% + 28px);
+    }
+
+    /* connector dot on the spine */
+    .entry::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 16px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--text);
+      transform: translateX(-50%);
+      border: 2px solid var(--bg);
+      z-index: 3;
+    }
+
+    /* horizontal connector line */
+    .entry::before {
+      content: '';
+      position: absolute;
+      top: 21px;
+      height: 2px;
+      background: var(--line);
+      z-index: 1;
+    }
+    .entry.right::before { left: calc(50% + 5px);  width: 23px; }
+    .entry.left::before  { right: calc(50% + 5px); width: 23px; }
+
+    /* dot color by category */
+    .entry.cat-learn::after     { background: var(--accent-learn); }
+    .entry.cat-do::after        { background: var(--accent-do); }
+    .entry.cat-celebrate::after { background: var(--accent-celebrate); }
+    .entry.cat-create::after    { background: var(--accent-create); }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      max-width: 380px;
+      width: 100%;
+      position: relative;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+
+    /* left stripe */
+    .card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 8px 0 0 8px;
+    }
+    .card.learn::before     { background: var(--accent-learn); }
+    .card.do::before        { background: var(--accent-do); }
+    .card.celebrate::before { background: var(--accent-celebrate); }
+    .card.create::before    { background: var(--accent-create); }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: var(--tag-radius);
+      margin-bottom: 6px;
+      opacity: 0.85;
+    }
+    .card.learn .card-tag     { background: #e4f0f8; color: var(--accent-learn); }
+    .card.do .card-tag        { background: #ede9f5; color: var(--accent-do); }
+    .card.celebrate .card-tag { background: #fdf0e2; color: var(--accent-celebrate); }
+    .card.create .card-tag    { background: #faeae5; color: var(--accent-create); }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .card-title a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .card-title a:hover { border-bottom-color: currentColor; }
+
+    .card-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+    .card-sub a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .card-date {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+      opacity: 0.75;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .timeline-outer::before { left: 20px; }
+      .col-labels { display: none; }
+      .entry { flex-direction: column !important; padding-left: 48px !important; padding-right: 0 !important; }
+      .entry::after { left: 20px; top: 14px; }
+      .entry::before { left: 20px; width: 22px; top: 19px; right: auto !important; }
+      .card { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="index.html">← Back to home</a>
+  <h1>A life in dates</h1>
+  <p class="subtitle">Learn · Do · Create · Celebrate</p>
+</header>
+
+<div class="col-labels">
+  <div class="col-label left">Learn &amp; Do</div>
+  <div class="col-label right">Create &amp; Celebrate</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent-learn)"></div> Learn</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent-do)"></div> Do</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent-create)"></div> Create</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--accent-celebrate)"></div> Celebrate</div>
+</div>
+
+<div class="timeline-outer">
+
+  <!-- ═══ 2026 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2026</span></div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">NIH R50 Research Software Engineer Award</div>
+        <div class="card-sub">National Institutes of Health</div>
+        <div class="card-date">2026</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2025 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2025</span></div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">School of Medicine Innovation Award</div>
+        <div class="card-sub">Emory University</div>
+        <div class="card-date">2025</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-create">
+      <div class="card create">
+        <div class="card-tag">Create</div>
+        <div class="card-title"><a href="https://treeheroesatl.org" target="_blank" rel="noopener">Tree Heroes ATL</a></div>
+        <div class="card-sub">Advocacy site to protect and celebrate Atlanta's urban forest canopy</div>
+        <div class="card-date">2025</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">Emory Healthcare Innovation Challenge Award</div>
+        <div class="card-sub">For <a href="https://vocaliscare.com" target="_blank" rel="noopener">Vocalis Care</a> — awarded funding to deploy the digital interpreter at Emory Hospital</div>
+        <div class="card-date">2025</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-create">
+      <div class="card create">
+        <div class="card-tag">Create</div>
+        <div class="card-title"><a href="https://pasalacabra.com" target="_blank" rel="noopener">Pasalacabra</a></div>
+        <div class="card-sub">Online game show inspired by the beloved Spanish word game Pasapalabra</div>
+        <div class="card-date">2025</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2024 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2024</span></div>
+
+    <div class="entry left cat-do">
+      <div class="card do">
+        <div class="card-tag">Do</div>
+        <div class="card-title">Associate Director of Apps, Digital Platforms &amp; Technology Development</div>
+        <div class="card-sub">Georgia CTSA, Emory University</div>
+        <div class="card-date">2024 – present</div>
+      </div>
+    </div>
+
+    <div class="entry left cat-do">
+      <div class="card do">
+        <div class="card-tag">Do</div>
+        <div class="card-title">Director of XR Research &amp; Development</div>
+        <div class="card-sub">Innovation Center, Emory School of Medicine</div>
+        <div class="card-date">2024 – present</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">Best Poster – Southern Regional CTSA Conference</div>
+        <div class="card-sub">For Fabla, a platform to streamline studying daily lived experience through ecological momentary assessment</div>
+        <div class="card-date">2024</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">IDEAward – <a href="https://vocaliscare.com" target="_blank" rel="noopener">Vocalis</a></div>
+        <div class="card-sub">A digital interpreter to support bedside communication between non-English-speaking patients and clinical staff — Emory Office of Technology Transfer</div>
+        <div class="card-date">2024</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2023 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2023</span></div>
+
+    <div class="entry right cat-create">
+      <div class="card create">
+        <div class="card-tag">Create</div>
+        <div class="card-title">PaperPod</div>
+        <div class="card-sub">App that converts scientific papers into listenable podcasts — predated and (in my humble opinion) inspired NotebookLM</div>
+        <div class="card-date">2023</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">Distinguished Researcher Award</div>
+        <div class="card-sub">Reality Labs Research, Meta — for furthering exploration of myopia and virtual reality</div>
+        <div class="card-date">2023</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">Best Use of AI – ImmerseGT Hackathon</div>
+        <div class="card-sub">Built Wagyo — an early proof of concept that LLMs have spatial awareness of the human world, before multi-modal AI was mainstream</div>
+        <div class="card-date">2023</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">Emory School of Medicine Staff Spotlight</div>
+        <div class="card-sub">Emory University</div>
+        <div class="card-date">2023</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2022 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2022</span></div>
+
+    <div class="entry left cat-do">
+      <div class="card do">
+        <div class="card-tag">Do</div>
+        <div class="card-title"><a href="https://apphatchery.framer.website" target="_blank" rel="noopener">Co-Director of AppHatchery</a></div>
+        <div class="card-sub">Georgia CTSA, Emory University</div>
+        <div class="card-date">2022 – 2024</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2021 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2021</span></div>
+
+    <div class="entry right cat-create">
+      <div class="card create">
+        <div class="card-tag">Create</div>
+        <div class="card-title"><a href="vr-recruitment.html">VR Keyboard</a></div>
+        <div class="card-sub">Hand-based virtual reality keyboard designed to improve typing speed and accuracy in VR environments</div>
+        <div class="card-date">2021</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">Best Service Award</div>
+        <div class="card-sub">Georgia Institute of Technology</div>
+        <div class="card-date">2021</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">Outstanding Masters Project Award</div>
+        <div class="card-sub">For building software for Atlanta's Office of Immigrant Affairs to route families to city-provided resources</div>
+        <div class="card-date">2021</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2020 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2020</span></div>
+
+    <div class="entry left cat-do">
+      <div class="card do">
+        <div class="card-tag">Do</div>
+        <div class="card-title">Product Development Lead</div>
+        <div class="card-sub">Georgia CTSA, Emory University</div>
+        <div class="card-date">2020 – 2022</div>
+      </div>
+    </div>
+
+    <div class="entry left cat-do">
+      <div class="card do">
+        <div class="card-tag">Do</div>
+        <div class="card-title">Lead Developer</div>
+        <div class="card-sub">ZenVR – VR Meditation &amp; Education Start-Up</div>
+        <div class="card-date">2020 – 2022</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">People's Choice Award – Horizons Hackathon</div>
+        <div class="card-sub">Built a fully functional arcade machine — Georgia Institute of Technology</div>
+        <div class="card-date">2020</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2019 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2019</span></div>
+
+    <div class="entry right cat-create">
+      <div class="card create">
+        <div class="card-tag">Exploratory Research</div>
+        <div class="card-title"><a href="synesthesia.html">Passive Visual Learning</a></div>
+        <div class="card-sub">Simulating synesthesia-like experiences to enhance musical memory in non-synesthetes</div>
+        <div class="card-date">2019</div>
+      </div>
+    </div>
+
+    <div class="entry left cat-learn">
+      <div class="card learn">
+        <div class="card-tag">Learn</div>
+        <div class="card-title">M.S. Human Computer Interaction</div>
+        <div class="card-sub">Georgia Institute of Technology</div>
+        <div class="card-date">2019 – 2021</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-create">
+      <div class="card create">
+        <div class="card-tag">Exploratory Research</div>
+        <div class="card-title">Haptic Language Learning</div>
+        <div class="card-sub">Exploring skin as a conduit to improved language acquisition through statistical learning</div>
+        <div class="card-date">2019</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2018 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2018</span></div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">Released E-Hive to Market</div>
+        <div class="card-sub">Multi-throughput electrochemistry device for high-speed screening of reactions — IKA Works R&amp;D</div>
+        <div class="card-date">2018 – 2019</div>
+      </div>
+    </div>
+
+    <div class="entry left cat-do">
+      <div class="card do">
+        <div class="card-tag">Do</div>
+        <div class="card-title">Engineering Project Lead</div>
+        <div class="card-sub">IKA Works R&amp;D</div>
+        <div class="card-date">2018 – 2019</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2017 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2017</span></div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">RedDot Award – ElectraSyn</div>
+        <div class="card-sub">IKA Works</div>
+        <div class="card-date">2017</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 2016 ═══ -->
+  <div class="year-section">
+    <div class="year-marker"><span>2016</span></div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title">Released Microelectrodes, Cyclic Voltammetry Kit &amp; Go-Module</div>
+        <div class="card-sub">Three products brought to market during my time as Mechanical Engineer at IKA Works R&amp;D</div>
+        <div class="card-date">2016 – 2018</div>
+      </div>
+    </div>
+
+    <div class="entry left cat-do">
+      <div class="card do">
+        <div class="card-tag">Do</div>
+        <div class="card-title">Mechanical Engineer</div>
+        <div class="card-sub">IKA Works R&amp;D</div>
+        <div class="card-date">2016 – 2018</div>
+      </div>
+    </div>
+
+    <div class="entry right cat-celebrate">
+      <div class="card celebrate">
+        <div class="card-tag">Celebrate</div>
+        <div class="card-title"><a href="https://www.sciencedirect.com/science/article/pii/S2213597916300519" target="_blank" rel="noopener">Published in Photoacoustics Journal</a></div>
+        <div class="card-sub">First 3D printed phantom to measure contrast agents — published during undergraduate research at UCSD</div>
+        <div class="card-date">2016</div>
+      </div>
+    </div>
+
+    <div class="entry left cat-learn">
+      <div class="card learn">
+        <div class="card-tag">Learn</div>
+        <div class="card-title">B.S. NanoEngineering &amp; Psychology</div>
+        <div class="card-sub">University of California, San Diego</div>
+        <div class="card-date">June 2016</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /timeline-outer -->
+
+</body>
+</html>
