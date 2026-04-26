@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apps – Yago Arconada</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #1a1a1a;
+      --grey: #5a5a5a;
+      --border: #e8e8e8;
+      --white: #ffffff;
+      --max-width: 680px;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--black);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    nav {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+
+    .back {
+      font-size: 13px;
+      font-weight: 600;
+      color: #aaa;
+      text-decoration: none;
+    }
+    .back:hover { color: var(--black); }
+
+    .header {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 20px 24px 48px;
+    }
+
+    .header h1 {
+      font-size: clamp(28px, 5vw, 40px);
+      font-weight: 700;
+      letter-spacing: -0.8px;
+    }
+
+    .header p {
+      font-size: 15px;
+      color: var(--grey);
+      margin-top: 10px;
+      line-height: 1.7;
+    }
+
+    .apps-list {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .app-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .app-card:hover {
+      border-color: #ccc;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    }
+
+    .app-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 13px;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .app-info {}
+
+    .app-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .app-desc {
+      font-size: 13px;
+      color: var(--grey);
+      line-height: 1.55;
+    }
+
+    .app-arrow {
+      margin-left: auto;
+      font-size: 18px;
+      color: #ccc;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="back" href="../index.html">← yagoarconada.com</a>
+  </nav>
+
+  <div class="header">
+    <h1>Apps</h1>
+    <p>Things I've built and shipped.</p>
+  </div>
+
+  <div class="apps-list">
+    <a class="app-card" href="remou/index.html">
+      <img class="app-icon" src="remou/icon.png" alt="Remou">
+      <div class="app-info">
+        <div class="app-name">Remou</div>
+        <div class="app-desc">Safari extension that turns Outlook email threads into clean, chat-like conversations.</div>
+      </div>
+      <span class="app-arrow">›</span>
+    </a>
+  </div>
+
+</body>
+</html>
