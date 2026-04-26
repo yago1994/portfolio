@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remou – Outlook email as a chat</title>
+  <meta name="description" content="Remou is a Safari extension that transforms Outlook email threads into clean, chat-like conversations.">
+  <meta property="og:title" content="Remou – Outlook email as a chat">
+  <meta property="og:description" content="A Safari extension that transforms Outlook email threads into clean, chat-like conversations.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent-start: #6366f1;
+      --accent-end: #a855f7;
+      --accent-glow: rgba(99, 102, 241, 0.22);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --surface: rgba(255, 255, 255, 0.82);
+      --surface-strong: rgba(255, 255, 255, 0.94);
+      --border-soft: rgba(148, 163, 184, 0.26);
+      --shadow-strong: 0 24px 60px rgba(15, 23, 42, 0.18);
+      --max-width: 720px;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      background:
+        radial-gradient(circle at top left, rgba(168, 85, 247, 0.24), transparent 34%),
+        radial-gradient(circle at top right, rgba(99, 102, 241, 0.18), transparent 32%),
+        linear-gradient(180deg, #f8faff 0%, #eef2ff 52%, #f8fafc 100%);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+
+    .nav-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .nav-brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 52px 24px 48px;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 14px;
+      border: 1px solid rgba(99, 102, 241, 0.16);
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--accent-start);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(30px, 6vw, 50px);
+      font-weight: 750;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto 32px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+      color: white;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 30px;
+      border-radius: 999px;
+      text-decoration: none;
+      box-shadow: 0 14px 30px rgba(79, 70, 229, 0.28);
+      transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+    .btn-primary:hover {
+      filter: brightness(1.06);
+      box-shadow: 0 18px 36px rgba(79, 70, 229, 0.34);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.24);
+    }
+
+    /* ── SCREENSHOTS ── */
+    .screenshots {
+      max-width: var(--max-width);
+      margin: 0 auto 64px;
+      padding: 0 24px;
+    }
+
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .screenshot-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    .screenshot-frame {
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-strong);
+      background: var(--surface-strong);
+      height: 420px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ol-mock, .chat-mock {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: rgba(238, 242, 255, 0.80);
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .browser-dot:nth-child(1) { background: #ff5f57; }
+    .browser-dot:nth-child(2) { background: #febc2e; }
+    .browser-dot:nth-child(3) { background: #28c840; }
+
+    .screenshot-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      object-position: top left;
+    }
+
+    /* ── OUTLOOK MOCK ── */
+    .ol-mock {
+      background: #fff;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      color: #1a1a1a;
+      padding: 14px 16px 12px;
+      text-align: left;
+    }
+
+    .ol-subject-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ol-subject {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .ol-summarize-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border: 1px solid #d1d1d1;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #444;
+      background: #f5f5f5;
+      white-space: nowrap;
+    }
+
+    .ol-message {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .ol-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #107c10;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .ol-avatar-badge {
+      position: absolute;
+      bottom: -2px; right: -2px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid #ddd;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px;
+    }
+
+    .ol-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ol-meta-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+
+    .ol-sender {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ol-date {
+      font-size: 11px;
+      color: #666;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ol-to {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .ol-actions {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      margin-bottom: 10px;
+    }
+
+    .ol-action-icon {
+      width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #444;
+      cursor: default;
+    }
+
+    .ol-action-icon.active {
+      border: 1.5px solid #1a1a1a;
+      border-radius: 4px;
+    }
+
+    .ol-action-sep {
+      width: 1px;
+      height: 16px;
+      background: #ddd;
+      margin: 0 4px;
+    }
+
+    .ol-teams-icon {
+      display: flex;
+      gap: 1px;
+      align-items: center;
+    }
+    .ol-teams-dot {
+      width: 7px; height: 7px; border-radius: 1px;
+    }
+
+    .ol-body {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+
+    .ol-quoted {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-left: 3px solid #ddd;
+      color: #888;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .ol-expand-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      font-size: 11px;
+      color: #555;
+      cursor: default;
+    }
+
+    .ol-suggested-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .ol-suggestion {
+      padding: 4px 10px;
+      border: 1px solid #0072C6;
+      border-radius: 999px;
+      font-size: 11px;
+      color: #0072C6;
+      background: white;
+      cursor: default;
+    }
+
+    .ol-reply-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .ol-reply-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+      background: white;
+      cursor: default;
+    }
+
+    /* ── CHAT MOCK (after — matches real Remou UI) ── */
+    .chat-mock {
+      background: #fff;
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid #e8e8e8;
+      gap: 8px;
+    }
+
+    .chat-header-subject {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .chat-gear {
+      width: 22px; height: 22px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .chat-hide-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      background: #fff0f3;
+      border: 1px solid #f7a8b8;
+      border-radius: 4px;
+      font-size: 10px;
+      color: #c0375a;
+      white-space: nowrap;
+    }
+
+    .chat-messages {
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      background: #e8f0fa;
+    }
+
+    .chat-msg-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .chat-msg-row.me {
+      flex-direction: row-reverse;
+      justify-content: flex-start;
+    }
+    .chat-msg-row.me > div:last-child {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .chat-av {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #c2185b;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .chat-bubble {
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 11.5px;
+      line-height: 1.55;
+      color: #1a1a1a;
+      background: white;
+      border: none;
+      max-width: 82%;
+    }
+    .chat-msg-row.me .chat-bubble {
+      background: #cce0f5;
+      color: #1a1a1a;
+    }
+
+    .chat-reply-area {
+      margin: 6px 10px 0;
+      padding: 8px 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      font-size: 11px;
+      color: #aaa;
+      background: #fff;
+      min-height: 44px;
+    }
+
+    .chat-footer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      background: #fff;
+      border-top: none;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .chat-footer-text {
+      font-size: 10px;
+      color: #555;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .chat-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .chat-report-btn {
+      padding: 4px 10px;
+      border: 1.5px solid #e8a0b0;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #c0375a;
+      background: white;
+    }
+
+    .chat-eye-btn {
+      font-size: 14px;
+      padding: 0 4px;
+      color: #444;
+    }
+
+    .chat-reply-all-btn {
+      padding: 5px 12px;
+      background: #1b5fad;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* ── VIDEO SECTION ── */
+    .video-wrap {
+      max-width: var(--max-width);
+      margin: 0 auto 64px;
+      padding: 0 24px;
+    }
+
+    .video-card {
+      padding: 36px;
+      border: 1px solid var(--border-soft);
+      border-radius: 28px;
+      background: color-mix(in srgb, var(--surface) 92%, white);
+      box-shadow: var(--shadow-strong);
+    }
+
+    .video-card h2 {
+      font-size: clamp(18px, 3vw, 22px);
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .video-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      background: rgba(15, 23, 42, 0.88);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(79, 70, 229, 0.18);
+    }
+
+    .video-container video,
+    .video-container iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .video-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: rgba(255,255,255,0.4);
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .video-placeholder svg { width: 44px; height: 44px; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 24px;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    footer span { font-size: 12px; color: var(--text-secondary); opacity: 0.6; }
+
+    footer a {
+      font-size: 12px;
+      color: var(--text-secondary);
+      opacity: 0.6;
+      text-decoration: underline;
+    }
+    footer a:hover { opacity: 1; }
+
+    @media (max-width: 540px) {
+      .screenshots-grid { grid-template-columns: 1fr; gap: 20px; }
+      .video-card { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-brand" href="#">
+      <img src="icon.png" alt="Remou">
+      Remou
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="hero-badge">Safari Extension · Outlook</span>
+    <h1>Email threads,<br>finally <em>readable</em>.</h1>
+    <p class="hero-sub">
+      Remou turns tangled Outlook email threads into clean, chat-like conversations —
+      so you can follow who said what without digging through layers of quoted text.
+    </p>
+    <a class="btn-primary" href="https://github.com/yago1994/semai/releases/download/beta/remou.zip">Download Remou for free</a>
+  </div>
+
+  <!-- BEFORE / AFTER SCREENSHOTS -->
+  <div class="screenshots">
+    <div class="screenshots-grid">
+
+      <!-- BEFORE -->
+      <div class="screenshot-item">
+        <div class="screenshot-label">Without Remou</div>
+        <div class="screenshot-frame">
+          <div class="browser-bar">
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+          </div>
+          <div class="ol-mock">
+            <!-- Subject row -->
+            <div class="ol-subject-row">
+              <span class="ol-subject">Re: RE: RE: Team lunch Thursday</span>
+              <span class="ol-summarize-btn">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6"/></svg>
+                Summarize
+              </span>
+            </div>
+            <!-- Message -->
+            <div class="ol-message">
+              <div class="ol-avatar">
+                MC
+                <div class="ol-avatar-badge">✉</div>
+              </div>
+              <div class="ol-meta">
+                <div class="ol-meta-top">
+                  <span class="ol-sender">Maya Chen</span>
+                  <span class="ol-date">Fri 4/25/2026 11:02 AM</span>
+                </div>
+                <div class="ol-to">To: Alex Rivera</div>
+                <!-- Action icons -->
+                <div class="ol-actions">
+                  <div class="ol-action-icon">😊</div>
+                  <div class="ol-action-icon">↩</div>
+                  <div class="ol-action-icon">↩↩</div>
+                  <div class="ol-action-icon">↪</div>
+                  <div class="ol-action-sep"></div>
+                  <div class="ol-action-icon">🚩</div>
+                  <div class="ol-action-icon">
+                    <div class="ol-teams-icon">
+                      <div class="ol-teams-dot" style="background:#6264a7;"></div>
+                      <div class="ol-teams-dot" style="background:#d74108;"></div>
+                    </div>
+                  </div>
+                  <div class="ol-action-icon active">📹</div>
+                  <div class="ol-action-icon">⊞</div>
+                  <div class="ol-action-icon">···</div>
+                </div>
+                <!-- Body -->
+                <div class="ol-body">
+                  Sounds great, see you Thursday at noon!
+                </div>
+                <div class="ol-quoted">
+                  On Thu 4/24/2026, Alex Rivera wrote:<br>
+                  &gt; Works for me — same place as last time?<br><br>
+                  On Wed 4/23/2026, Maya Chen wrote:<br>
+                  &gt; Hey everyone, lunch Thursday? I was thinking…<br>
+                  &gt; On Tue, Sam wrote: &gt; +1 to lunch, I'll be there…
+                </div>
+                <div style="margin-top:8px;">
+                  <span class="ol-expand-btn">···</span>
+                </div>
+                <div class="ol-suggested-replies">
+                  <span class="ol-suggestion">Thank you!</span>
+                  <span class="ol-suggestion">It was great meeting you!</span>
+                  <span class="ol-suggestion">Wonderful, thank you!</span>
+                </div>
+                <div class="ol-reply-actions">
+                  <span class="ol-reply-btn">↩ Reply</span>
+                  <span class="ol-reply-btn">↪ Forward</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AFTER -->
+      <div class="screenshot-item">
+        <div class="screenshot-label">With Remou</div>
+        <div class="screenshot-frame">
+          <div class="browser-bar">
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+          </div>
+          <div class="chat-mock">
+            <!-- Header -->
+            <div class="chat-header">
+              <span class="chat-header-subject">Re: RE: Team lunch Thursday</span>
+              <div class="chat-header-actions">
+                <div class="chat-gear">⚙</div>
+                <div class="chat-hide-btn">× Hide chat view</div>
+              </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages">
+              <div class="chat-msg-row">
+                <div class="chat-av">MC</div>
+                <div>
+<div class="chat-bubble">Hey everyone, lunch Thursday? I was thinking noon at the usual spot.</div>
+                </div>
+              </div>
+
+              <div class="chat-msg-row me">
+                <div class="chat-av">AR</div>
+                <div>
+                  <div class="chat-bubble">Works for me — same place as last time?</div>
+                </div>
+              </div>
+
+              <div class="chat-msg-row me">
+                <div class="chat-av">AR</div>
+                <div>
+                  <div class="chat-bubble">Also happy to book somewhere new if people want a change!</div>
+                </div>
+              </div>
+
+              <div class="chat-msg-row">
+                <div class="chat-av">MC</div>
+                <div>
+<div class="chat-bubble">Sounds great, see you Thursday at noon!</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reply area -->
+            <div class="chat-reply-area">Type a reply-all response to the latest message…</div>
+
+            <!-- Footer bar -->
+            <div class="chat-footer-bar">
+              <div class="chat-footer-text">Chat view is on. Use the eye button to switch back to regular Outlook.</div>
+              <div class="chat-footer-actions">
+                <div class="chat-report-btn">Report issue</div>
+                <div class="chat-eye-btn">👁</div>
+                <div class="chat-reply-all-btn">Reply all</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VIDEO -->
+  <div class="video-wrap" style="display:none;">
+    <div class="video-card">
+      <h2>Where Remou came from</h2>
+      <p>
+        I kept finding myself scrolling through endless threads just to find one new
+        sentence buried under lengthy signatures and layers of quoted replies.
+      </p>
+      <div class="video-container">
+        <!--
+          Drop your video in here. Pick one:
+
+          Local file:
+            <video controls poster="poster.jpg">
+              <source src="remou-story.mp4" type="video/mp4">
+            </video>
+
+          YouTube:
+            <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+
+          Vimeo:
+            <iframe src="https://player.vimeo.com/video/YOUR_VIDEO_ID"
+              allow="autoplay; fullscreen" allowfullscreen></iframe>
+        -->
+        <div class="video-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/>
+          </svg>
+          <span>Video coming soon</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 Yago Arconada</span>
+    <a href="privacy.html">Privacy Policy</a>
+  </footer>
+
+</body>
+</html>
