@@ -138,10 +138,97 @@
       box-shadow: 0 10px 20px rgba(79, 70, 229, 0.24);
     }
 
+    /* ── FEATURE LABEL ── */
+    .feature-block {
+      max-width: var(--max-width);
+      margin: 0 auto 20px;
+      padding: 0 24px;
+    }
+
+    .feature-block h2 {
+      font-size: clamp(18px, 3vw, 22px);
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .feature-block p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ── EYE ICON FEATURE ── */
+    .eye-feature {
+      max-width: var(--max-width);
+      margin: 0 auto 64px;
+      padding: 0 24px;
+    }
+
+    .eye-feature-card {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      padding: 24px 28px;
+      border: 1px solid var(--border-soft);
+      border-radius: 20px;
+      background: color-mix(in srgb, var(--surface) 92%, white);
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.07);
+    }
+
+    .eye-feature-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .eye-feature-header {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .eye-feature-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .eye-feature-text h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .eye-feature-text p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .eye-gif-placeholder {
+      width: 100%;
+      aspect-ratio: 16 / 5;
+      background: rgba(99, 102, 241, 0.05);
+      border: 1.5px dashed rgba(99, 102, 241, 0.2);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
     /* ── SCREENSHOTS ── */
     .screenshots {
       max-width: var(--max-width);
-      margin: 0 auto 64px;
+      margin: 0 auto 24px;
       padding: 0 24px;
     }
 
@@ -682,7 +769,13 @@
       Remou turns tangled Outlook email threads into clean, chat-like conversations —
       so you can follow who said what without digging through layers of quoted text.
     </p>
-    <a class="btn-primary" href="https://github.com/yago1994/semai/releases/download/beta/remou.zip">Download Remou for free</a>
+    <a class="btn-primary" href="https://github.com/yago1994/remou/releases/download/beta/remou.zip">Download Remou for free</a>
+  </div>
+
+  <!-- CHAT MODE FEATURE -->
+  <div class="feature-block">
+    <h2>Chat mode</h2>
+    <p>One toggle turns any Outlook thread into a clean, message-by-message conversation — no quoted text, no noise.</p>
   </div>
 
   <!-- BEFORE / AFTER SCREENSHOTS -->
@@ -835,6 +928,7 @@
     </div>
   </div>
 
+
   <!-- VIDEO -->
   <div class="video-wrap" style="display:none;">
     <div class="video-card">
@@ -875,6 +969,7 @@
   <!-- FOOTER -->
   <footer>
     <span>© 2026 Yago Arconada</span>
+    <span style="font-size:11px;opacity:0.35;">v1.0 (7)</span>
     <a href="privacy.html">Privacy Policy</a>
   </footer>
 
