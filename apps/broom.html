@@ -704,14 +704,14 @@
         onChanged: { addListener: (fn) => listeners.push(fn) }
       };
       window.chrome.runtime = {
-        getURL: (p) => p,
+        getURL: (p) => `broom_files/${p}`,
         getManifest: () => ({ version: "1.0 (1)" }),
         onMessage: { addListener: () => {} }
       };
     })();
   </script>
-  <script src="plants.js"></script>
-  <script src="content.js"></script>
+  <script src="broom_files/plants.js"></script>
+  <script src="broom_files/content.js"></script>
   <script>
     (function () {
       const versionLabel = document.getElementById("site-version-label");
