@@ -8,7 +8,7 @@
   <meta property="og:title" content="Broom – Clean YOUR Internet">
   <meta property="og:description" content="A Safari extension that lets you sweep clutter off any webpage and grow a tiny garden in its place.">
   <meta property="og:type" content="website">
-  <link rel="icon" href="broom_files/broom-icon.png">
+  <link rel="icon" href="broom-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -93,19 +93,24 @@
     }
     .hero h1 em {
       font-style: normal;
-      color: var(--accent);
+      color: var(--accent-warm);
     }
-    .hero h1 .your { font-style: italic; color: var(--accent-warm); }
+    .hero h1 .grow { color: var(--accent); }
     .hero-sub {
-      font-size: 16px;
+      font-size: 17px;
       line-height: 1.75;
-      color: var(--text-secondary);
+      color: #3d4f47;
       max-width: 480px;
       margin: 0 auto 32px;
     }
+    .manifesto-section {
+      max-width: var(--max-width);
+      margin: 0 auto 64px;
+      padding: 0 24px;
+    }
     .manifesto {
       max-width: 560px;
-      margin: 32px auto 0;
+      margin: 0 auto;
       text-align: left;
     }
     .manifesto p {
@@ -140,6 +145,26 @@
     .btn-primary:active {
       transform: translateY(0);
       box-shadow: 0 10px 20px rgba(56, 161, 105, 0.24);
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    @keyframes launcher-boop {
+      0%   { transform: scale(1)    rotate(0deg);   }
+      18%  { transform: scale(1.44) rotate(-18deg); }
+      36%  { transform: scale(0.80) rotate(12deg);  }
+      56%  { transform: scale(1.22) rotate(-8deg);  }
+      76%  { transform: scale(0.95) rotate(3deg);   }
+      100% { transform: scale(1)    rotate(0deg);   }
+    }
+    #broom-launcher.broom-boop {
+      animation: launcher-boop 0.68s cubic-bezier(.36,.07,.19,.97) both !important;
+      transform-origin: center !important;
     }
 
     /* ── Try-it-now centered banner (with arrow pointing at launcher) ── */
@@ -186,49 +211,111 @@
       opacity: 0.85;
     }
 
-    /* Big moving arrow — sits directly below the Try it now button and
-       points straight down at the centered floating launcher
-       (#broom-launcher), which we pin to bottom-center on this page. */
-    .try-arrow {
-      width: 72px;
-      height: 110px;
+    /* ── Sticky "Your Broom is here" hint ────────────────────────────────
+       A fixed/sticky label + hand-drawn arrow pinned just above-left of
+       the floating launcher (#broom-launcher), which lives at the
+       bottom-right of the viewport. Stays visible while the user
+       scrolls so they always know how to reach the broom. */
+    .broom-hint {
+      position: fixed;
+      bottom: 84px;          /* clears the 54px launcher + 22px offset */
+      right: 22px;           /* right-aligned with the launcher */
+      z-index: 2147483639;   /* just below the launcher (which is …40) */
       pointer-events: none;
-      animation: arrow-bob 1.4s ease-in-out infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      animation: broom-hint-bob 1.6s ease-in-out infinite;
     }
-    .try-arrow svg {
-      width: 100%;
-      height: 100%;
-      filter: drop-shadow(0 6px 12px rgba(194, 104, 58, 0.35));
+    .broom-hint-text {
+      font-family: 'Caveat', 'Bradley Hand', 'Comic Sans MS', cursive;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.05;
+      color: var(--accent-warm);
+      white-space: nowrap;
+      padding: 4px 14px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(194, 104, 58, 0.25);
+      border-radius: 999px;
+      box-shadow: 0 6px 16px rgba(15, 40, 25, 0.12);
+      backdrop-filter: blur(6px) saturate(1.2);
+      -webkit-backdrop-filter: blur(6px) saturate(1.2);
+    }
+    .broom-hint-arrow {
+      width: 80px;
+      height: 60px;
+      margin-right: 12px;    /* nudge the arrow tip toward launcher center */
       overflow: visible;
     }
-    .try-arrow path {
+    .broom-hint-arrow path {
       fill: none;
       stroke: var(--accent-warm);
-      stroke-width: 6;
+      stroke-width: 4;
       stroke-linecap: round;
       stroke-linejoin: round;
+      filter: drop-shadow(0 2px 4px rgba(194, 104, 58, 0.25));
     }
-    .try-arrow .head {
+    .broom-hint-arrow .head {
       fill: var(--accent-warm);
       stroke: none;
+      filter: drop-shadow(0 2px 4px rgba(194, 104, 58, 0.25));
     }
-    @keyframes arrow-bob {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50%      { transform: translateY(8px) rotate(-3deg); }
-    }
-    @media (max-width: 640px) {
-      .try-arrow { width: 56px; height: 84px; }
+    @keyframes broom-hint-bob {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50%      { transform: translate(-3px, -4px) rotate(-1.5deg); }
     }
 
-    /* Override the launcher's default bottom-right position so the
-       floating broom icon sits centered at the bottom of this landing
-       page, directly under the "Try it now" arrow. Higher specificity
-       (html body #...) wins over the launcher's own !important rules
-       regardless of stylesheet order. */
-    html body #broom-launcher-wrap {
-      right: auto !important;
-      left: 50% !important;
-      transform: translateX(-50%) !important;
+    /* ── Hint attention burst — fired alongside the launcher boop when
+       the user clicks "Try for free". The arrow redraws itself stroke
+       by stroke and the label flashes its colors so the user's eye is
+       pulled from the button → label → launcher. */
+    .broom-hint.broom-hint-attention .broom-hint-arrow path {
+      animation: broom-hint-redraw 0.9s ease-out both;
+    }
+    @keyframes broom-hint-redraw {
+      0%   { stroke-dasharray: 220; stroke-dashoffset: 220; }
+      100% { stroke-dasharray: 220; stroke-dashoffset: 0;   }
+    }
+    .broom-hint.broom-hint-attention .broom-hint-arrow .head {
+      animation: broom-hint-head-pop 0.32s cubic-bezier(.34,1.56,.64,1) 0.7s both;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    @keyframes broom-hint-head-pop {
+      0%   { transform: scale(0.2); opacity: 0; }
+      100% { transform: scale(1);   opacity: 1; }
+    }
+    .broom-hint.broom-hint-attention .broom-hint-text {
+      animation: broom-hint-text-flash 0.9s ease-out both;
+      will-change: transform, background, color;
+    }
+    @keyframes broom-hint-text-flash {
+      0%, 100% {
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--accent-warm);
+        transform: scale(1);
+        box-shadow: 0 6px 16px rgba(15, 40, 25, 0.12);
+      }
+      30%, 60% {
+        background: var(--accent-warm);
+        color: #fff;
+        transform: scale(1.12);
+        box-shadow: 0 12px 32px rgba(194, 104, 58, 0.55);
+      }
+    }
+
+    /* Fade the hint out of the way once the user opens the launcher's
+       fan menu — they've clearly found it. */
+    body:has(#broom-launcher-wrap.broom-fan-open) .broom-hint {
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+    @media (max-width: 640px) {
+      .broom-hint { bottom: 80px; right: 18px; }
+      .broom-hint-text { font-size: 20px; padding: 3px 10px; }
+      .broom-hint-arrow { width: 60px; height: 46px; margin-right: 8px; }
     }
 
     /* ── CLUTTER STAGE ── */
@@ -239,7 +326,7 @@
     }
     .clutter-stage {
       position: relative;
-      min-height: 360px;
+      min-height: 440px;
       border: 1px dashed rgba(120, 140, 130, 0.4);
       border-radius: 22px;
       background:
@@ -265,50 +352,84 @@
       position: absolute;
       cursor: pointer;
       user-select: none;
+      /* Transparent backstop guarantees the full box is hit-testable. */
+      background-color: rgba(0,0,0,0);
     }
-    .clutter-paper {
-      left: 18%;
-      top: 52%;
-      width: 70px;
-      height: 70px;
-      transform: rotate(-12deg);
-    }
-    .clutter-bin {
-      left: 5%;
-      top: 56%;
-      width: 76px;
-      height: 86px;
-    }
-    .clutter-wrapper {
-      right: 16%;
-      top: 18%;
-      width: 96px;
-      height: 56px;
-      transform: rotate(8deg);
-    }
+    /* Top row */
     .clutter-banner {
       left: 26%;
-      top: 12%;
+      top: 9%;
       width: 220px;
       height: 56px;
       transform: rotate(-3deg);
     }
+    .clutter-cpc {
+      right: 3%;
+      top: 4%;
+      width: 82px;
+      height: 82px;
+      transform: rotate(-10deg);
+    }
+    /* Mid row */
+    .clutter-paper-ball {
+      left: 3%;
+      top: 30%;
+      width: 78px;
+      height: 78px;
+      transform: rotate(-14deg);
+    }
+    .clutter-trash-bags {
+      left: 30%;
+      top: 32%;
+      width: 70px;
+      height: 78px;
+      transform: rotate(6deg);
+    }
+    .clutter-spots {
+      left: 52%;
+      top: 40%;
+      width: 62px;
+      height: 62px;
+      transform: rotate(18deg);
+      opacity: 0.85;
+    }
+    .clutter-paper-blue {
+      right: 4%;
+      top: 32%;
+      width: 60px;
+      height: 60px;
+      transform: rotate(12deg);
+    }
+    .clutter-message {
+      left: 64%;
+      top: 50%;
+      width: 56px;
+      height: 56px;
+      transform: rotate(-8deg);
+    }
+    /* Bottom row */
+    .clutter-banana {
+      left: 4%;
+      bottom: 6%;
+      width: 74px;
+      height: 74px;
+      transform: rotate(-18deg);
+    }
     .clutter-popup {
-      right: 6%;
-      bottom: 12%;
+      right: 4%;
+      bottom: 7%;
       width: 180px;
       height: 64px;
       transform: rotate(5deg);
     }
-    .clutter svg {
+    /* Inner SVG / IMG: let mouseover hit the parent .clutter box instead of
+       a single stroke or the image itself, so broom targets the whole item. */
+    .clutter svg,
+    .clutter img {
       width: 100%; height: 100%; display: block;
-      /* Let mouseover hit the parent .clutter box instead of an inner path,
-         so the broom picker targets the whole element, not a single stroke. */
       pointer-events: none;
-    }
-    .clutter {
-      /* Transparent backstop guarantees the full box is hit-testable. */
-      background-color: rgba(0,0,0,0);
+      -webkit-user-drag: none;
+      user-select: none;
     }
 
     /* Hand-written annotation labels — arrow paths are drawn by JS into
@@ -322,10 +443,11 @@
       pointer-events: none;
       white-space: nowrap;
     }
-    .note-paper   { left: 38%; bottom: 6%; }
-    .note-wrapper { right: 2%;  top: 2%; }
-    .note-banner  { left: 1%;  top: 2%; }
-    .note-popup   { left: 40%; bottom: 18%; }
+    .note-banner     { left: 1%;  top: 2%; }
+    .note-cpc        { right: 1%; top: 26%; }
+    .note-paper-ball { left: 4%;  bottom: 32%; }
+    .note-banana     { left: 22%; bottom: 6%; }
+    .note-popup      { left: 38%; bottom: 18%; }
 
     .notes-overlay {
       position: absolute;
@@ -408,8 +530,8 @@
 
   <!-- NAV -->
   <nav>
-    <a class="nav-brand" href="index.html">
-      <img src="broom_files/broom-icon.png" alt="Broom">
+    <a class="nav-brand" href="../index.html">
+      <img src="broom-icon.png" alt="Broom">
       Broom
     </a>
   </nav>
@@ -417,31 +539,13 @@
   <!-- HERO -->
   <div class="hero">
     <span class="hero-badge">Safari Extension</span>
-    <h1>Clean <span class="your">YOUR</span> Internet.<br><em>Sweep it.</em> Grow a Garden in its place.</h1>
+    <h1>Clean YOUR Internet.<br><em>Sweep It.</em> <span class="grow">Grow</span> a Garden in its place.</h1>
     <p class="hero-sub">
       Click any element on any webpage — a banner, a sidebar, an ad — and sweep it away for good. Where you swept, you can plant something.
     </p>
-    <a class="btn-primary" href="https://github.com/yago1994/broom/releases/latest">Download Broom for free</a>
-
-    <div class="manifesto">
-      <p>Most of the internet was designed to capture your attention, not to protect it. We navigate digital spaces filled with noise — sidebars, "premium" nudges, and infinite recommendations — that we never actually asked for.</p>
-      <p>I built Broom to change the power dynamic of the browser. Instead of accepting the UI you're given, Broom lets you curate the UI you need. It's a tool for reclaiming your focus by stripping away the digital clutter and replacing it with something that actually brings you peace (in my case, a growing garden of plants).</p>
-      <p>The web shouldn't be something you <em>consume</em> — it should be a space that works for you.</p>
-    </div>
-  </div>
-
-  <!-- TRY IT NOW (with arrow pointing straight down to the centered launcher) -->
-  <div class="try-banner">
-    <button class="try-btn" onclick="document.getElementById('broom-launcher')?.click();">
-      🧹 Try it now
-    </button>
-    <div class="try-caption">Click the launcher below</div>
-
-    <div class="try-arrow" aria-hidden="true">
-      <svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMax meet">
-        <path d="M50 10 C 84 42, 22 76, 50 110 S 56 138, 50 144" />
-        <polygon class="head" points="50,156 38,134 62,134" />
-      </svg>
+    <div class="hero-btns">
+      <a class="btn-primary" href="https://github.com/yago1994/broom/releases/download/Live/Broom.zip">⬇ Download for free</a>
+      <button class="try-btn" id="try-free-btn">🧹 Try It!</button>
     </div>
   </div>
 
@@ -463,41 +567,39 @@
         </svg>
       </div>
 
-      <!-- Trash bin -->
-      <div class="clutter clutter-bin" title="Sweep me with broom mode">
-        <svg viewBox="0 0 76 86" xmlns="http://www.w3.org/2000/svg">
-          <rect x="6" y="6" width="64" height="8" rx="2" fill="#6b7280"/>
-          <rect x="28" y="0" width="20" height="8" rx="2" fill="#6b7280"/>
-          <path d="M10 14 L66 14 L60 82 Q38 86 16 82 Z" fill="#9ca3af" stroke="#4b5563" stroke-width="1.5"/>
-          <line x1="22" y1="22" x2="26" y2="76" stroke="#4b5563" stroke-width="1.2"/>
-          <line x1="38" y1="22" x2="38" y2="76" stroke="#4b5563" stroke-width="1.2"/>
-          <line x1="54" y1="22" x2="50" y2="76" stroke="#4b5563" stroke-width="1.2"/>
-        </svg>
+      <!-- Cost-per-click ad coins -->
+      <div class="clutter clutter-cpc" title="Sweep me with broom mode">
+        <img src="broom_files/trash-svgs/cost-per-click.svg" alt="">
       </div>
 
-      <!-- Wrinkled paper -->
-      <div class="clutter clutter-paper" title="Sweep me with broom mode">
-        <svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 14 L14 8 L52 6 L62 12 L66 56 L60 64 L18 66 L6 60 L4 36 Z"
-                fill="#fafaf6" stroke="#bdb7a4" stroke-width="1.4" stroke-linejoin="round"/>
-          <path d="M14 8 L18 18 L12 22 L6 18 Z M62 12 L54 20 L60 28 L66 22 Z M60 64 L54 56 L48 62 L52 70 Z"
-                fill="rgba(0,0,0,0.06)" stroke="none"/>
-          <line x1="18" y1="26" x2="50" y2="24" stroke="#a8a294" stroke-width="1"/>
-          <line x1="16" y1="34" x2="54" y2="32" stroke="#a8a294" stroke-width="1"/>
-          <line x1="18" y1="42" x2="46" y2="40" stroke="#a8a294" stroke-width="1"/>
-          <line x1="16" y1="50" x2="52" y2="48" stroke="#a8a294" stroke-width="1"/>
-        </svg>
+      <!-- Crumpled paper ball -->
+      <div class="clutter clutter-paper-ball" title="Sweep me with broom mode">
+        <img src="broom_files/trash-svgs/paper-ball.svg" alt="">
       </div>
 
-      <!-- Chocolate wrapper -->
-      <div class="clutter clutter-wrapper" title="Sweep me with broom mode">
-        <svg viewBox="0 0 96 56" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 28 Q 2 8, 18 10 L 80 8 Q 96 14, 90 32 L 88 44 Q 70 54, 40 52 L 16 50 Q 0 48, 4 28 Z"
-                fill="#7b3f1a" stroke="#4a2410" stroke-width="1.4" stroke-linejoin="round"/>
-          <path d="M14 18 L 78 16 L 82 36 L 18 38 Z" fill="#c7a674" stroke="#7b3f1a" stroke-width="1"/>
-          <text x="48" y="32" font-family="Georgia, serif" font-size="9" fill="#4a2410" font-weight="700" text-anchor="middle" font-style="italic">cocoa 88%</text>
-          <path d="M4 28 Q 12 24, 14 18" stroke="#4a2410" stroke-width="0.8" fill="none"/>
-        </svg>
+      <!-- Trash bags -->
+      <div class="clutter clutter-trash-bags" title="Sweep me with broom mode">
+        <img src="broom_files/trash-svgs/trash-bags.svg" alt="">
+      </div>
+
+      <!-- Spots / stain -->
+      <div class="clutter clutter-spots" title="Sweep me with broom mode">
+        <img src="broom_files/trash-svgs/spots.svg" alt="">
+      </div>
+
+      <!-- Paper airplane / spam message -->
+      <div class="clutter clutter-message" title="Sweep me with broom mode">
+        <img src="broom_files/trash-svgs/message.svg" alt="">
+      </div>
+
+      <!-- Crumpled blue paper -->
+      <div class="clutter clutter-paper-blue" title="Sweep me with broom mode">
+        <img src="broom_files/trash-svgs/paper-ball-blue.svg" alt="">
+      </div>
+
+      <!-- Banana peel -->
+      <div class="clutter clutter-banana" title="Sweep me with broom mode">
+        <img src="broom_files/trash-svgs/banana-peel.svg" alt="">
       </div>
 
       <!-- Newsletter popup -->
@@ -515,10 +617,11 @@
       </div>
 
       <!-- Handwritten annotations — text only; arrows drawn into .notes-overlay -->
-      <div class="note note-banner"   data-note-target=".clutter-banner">clean this!</div>
-      <div class="note note-paper"    data-note-target=".clutter-paper">what's this doing here?</div>
-      <div class="note note-wrapper"  data-note-target=".clutter-wrapper">clean this!</div>
-      <div class="note note-popup"    data-note-target=".clutter-popup">ugh, sweep this!</div>
+      <div class="note note-banner"      data-note-target=".clutter-banner">clean this!</div>
+      <div class="note note-cpc"         data-note-target=".clutter-cpc">sneaky ad!</div>
+      <div class="note note-paper-ball"  data-note-target=".clutter-paper-ball">what's this doing here?</div>
+      <div class="note note-banana"      data-note-target=".clutter-banana">ew, sweep it!</div>
+      <div class="note note-popup"       data-note-target=".clutter-popup">ugh, sweep this!</div>
 
       <svg class="notes-overlay" aria-hidden="true"></svg>
     </div>
@@ -539,11 +642,30 @@
     </div>
   </div>
 
+  <!-- MANIFESTO / VALUE PROPOSITION -->
+  <div class="manifesto-section">
+    <div class="manifesto">
+      <p>Most of the internet was designed to capture your attention, not to protect it. We navigate digital spaces filled with noise — sidebars, "premium" nudges, and infinite recommendations — that we never actually asked for.</p>
+      <p>I built Broom to change the power dynamic of the browser. Instead of accepting the UI you're given, Broom lets you curate the UI you need. It's a tool for reclaiming your focus by stripping away the digital clutter and replacing it with something that actually brings you peace (in my case, a growing garden of plants).</p>
+      <p>The web shouldn't be something you <em>consume</em> — it should be a space that works for you.</p>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer>
     <span>© 2026 Yago Arconada</span>
-    <span style="font-size:11px;opacity:0.35;">v1.0 (1)</span>
+    <span id="site-version-label" style="font-size:11px;opacity:0.35;">v1.0</span>
   </footer>
+
+  <!-- STICKY HINT — always-visible "Your Broom is here" arrow that points
+       at the floating broom launcher in the bottom-right corner. -->
+  <div class="broom-hint" aria-hidden="true">
+    <span class="broom-hint-text">Your Broom is here!</span>
+    <svg class="broom-hint-arrow" viewBox="0 0 100 70" preserveAspectRatio="xMidYMid meet">
+      <path d="M8 8 Q 55 6, 72 28 T 88 58" />
+      <polygon class="head" points="92,62 76,58 84,46" />
+    </svg>
+  </div>
 
   <!-- ── Broom runtime — full extension built into the page ─────────────── -->
   <script>
@@ -582,14 +704,65 @@
         onChanged: { addListener: (fn) => listeners.push(fn) }
       };
       window.chrome.runtime = {
-        getURL: (p) => "broom_files/" + p,
+        getURL: (p) => p,
         getManifest: () => ({ version: "1.0 (1)" }),
         onMessage: { addListener: () => {} }
       };
     })();
   </script>
-  <script src="broom_files/plants.js"></script>
-  <script src="broom_files/content.js"></script>
+  <script src="plants.js"></script>
+  <script src="content.js"></script>
+  <script>
+    (function () {
+      const versionLabel = document.getElementById("site-version-label");
+      if (!versionLabel) return;
+
+      fetch("broom_files/app-update.json", { cache: "no-store" })
+        .then((res) => {
+          if (!res.ok) throw new Error("Update metadata unavailable");
+          return res.json();
+        })
+        .then((data) => {
+          if (!data || typeof data.latestVersion !== "string") return;
+          const latestVersion = data.latestVersion.trim();
+          if (!latestVersion) return;
+          versionLabel.textContent = `v${latestVersion}`;
+        })
+        .catch(() => {
+          // Keep fallback label when metadata fetch fails.
+        });
+    })();
+  </script>
+
+  <script>
+    // "Try for free" button — pulse the launcher AND redraw / flash the
+    // "Your Broom is here" hint so the user's eye flows from the CTA
+    // straight to the floating broom in the bottom-right corner.
+    document.getElementById('try-free-btn')?.addEventListener('click', function () {
+      try {
+        const audio = new Audio('pop.mp3');
+        audio.volume = 0.55;
+        audio.play().catch(() => {});
+      } catch (e) {}
+
+      const launcher = document.getElementById('broom-launcher');
+      if (launcher) {
+        launcher.classList.remove('broom-boop');
+        void launcher.offsetWidth;
+        launcher.classList.add('broom-boop');
+        launcher.addEventListener('animationend', () => launcher.classList.remove('broom-boop'), { once: true });
+      }
+
+      const hint = document.querySelector('.broom-hint');
+      if (hint) {
+        hint.classList.remove('broom-hint-attention');
+        void hint.offsetWidth; // force reflow so the animation restarts
+        hint.classList.add('broom-hint-attention');
+        // The arrow redraw is the longest sub-animation (0.9s + 0.32s head pop).
+        setTimeout(() => hint.classList.remove('broom-hint-attention'), 1300);
+      }
+    });
+  </script>
 
   <script>
     // Draw a curved arrow from each .note to the edge of its target .clutter.
@@ -627,15 +800,14 @@
         const notes = stage.querySelectorAll(".note[data-note-target]");
         notes.forEach((note) => {
           const target = stage.querySelector(note.dataset.noteTarget);
-          if (!target) return;
+          // If the clutter is gone or collapsed (broom sweep → display:none),
+          // hide the note too so we don't leave an orphan label and arrow.
+          const tR = target ? target.getBoundingClientRect() : null;
+          const targetGone = !target || tR.width === 0 || tR.height === 0;
+          note.style.visibility = targetGone ? "hidden" : "";
+          if (targetGone) return;
 
           const nR = note.getBoundingClientRect();
-          const tR = target.getBoundingClientRect();
-
-          // If broom (or anything else) has collapsed the target to 0×0
-          // (e.g. `display: none`), there's nothing to point at — skip it so
-          // the arrow disappears with the swept clutter.
-          if (tR.width === 0 || tR.height === 0) return;
           if (nR.width === 0 || nR.height === 0) return;
 
           if (resizeObs && !observedTargets.has(target)) {
