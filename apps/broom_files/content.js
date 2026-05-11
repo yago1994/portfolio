@@ -162,12 +162,23 @@ function buildSelector(el) {
 // Build a list of fallback selectors that don't rely on positional
 // pseudo-classes. Used when the primary selector might get released by
 // sibling reflow (e.g. plant slots inserted next to swept elements).
+//
+// Each candidate must *uniquely* identify the target element — checking
+// only `document.querySelector(sel) === el` is a trap, because it would
+// happily accept e.g. "div.clutter" for the first .clutter in the DOM,
+// then later hide every .clutter sibling when baked into the rule's CSS.
 function buildSelectorFallbacks(el, primary) {
   const fallbacks = [];
   const seen = new Set([primary]);
   const push = (sel) => {
     if (!sel || seen.has(sel)) return;
-    try { if (document.querySelector(sel) === el) { fallbacks.push(sel); seen.add(sel); } } catch { /* */ }
+    try {
+      const matches = document.querySelectorAll(sel);
+      if (matches.length === 1 && matches[0] === el) {
+        fallbacks.push(sel);
+        seen.add(sel);
+      }
+    } catch { /* */ }
   };
   const stable = Array.from(el.classList).filter(isStableClass);
   for (let n = Math.min(stable.length, 3); n >= 1; n--) {
