@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Broom – Clean YOUR Internet</title>
+  <meta name="description" content="Broom is a Safari extension that lets you sweep clutter off any webpage and grow a tiny garden in its place.">
+  <meta property="og:title" content="Broom – Clean YOUR Internet">
+  <meta property="og:description" content="A Safari extension that lets you sweep clutter off any webpage and grow a tiny garden in its place.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="broom_files/broom-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #38a169;
+      --accent-deep: #2e7d52;
+      --accent-warm: #c2683a;
+      --text-primary: #1a2920;
+      --text-secondary: #5a6a60;
+      --surface: rgba(255, 255, 255, 0.82);
+      --surface-strong: rgba(255, 255, 255, 0.94);
+      --border-soft: rgba(120, 140, 130, 0.26);
+      --shadow-strong: 0 24px 60px rgba(15, 40, 25, 0.16);
+      --max-width: 720px;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      background:
+        radial-gradient(circle at top left, rgba(56, 161, 105, 0.20), transparent 36%),
+        radial-gradient(circle at top right, rgba(194, 104, 58, 0.16), transparent 34%),
+        linear-gradient(180deg, #f7faf6 0%, #eef5ea 52%, #f8faf7 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 28px 24px;
+    }
+    .nav-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .nav-brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 36px 24px 40px;
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 14px;
+      border: 1px solid rgba(56, 161, 105, 0.18);
+      border-radius: 999px;
+      background: rgba(56, 161, 105, 0.08);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 5.6vw, 50px);
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .hero h1 .your { font-style: italic; color: var(--accent-warm); }
+    .hero-sub {
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto 32px;
+    }
+    .manifesto {
+      max-width: 560px;
+      margin: 32px auto 0;
+      text-align: left;
+    }
+    .manifesto p {
+      font-size: 14.5px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+    .manifesto p:last-child { margin-bottom: 0; }
+    .manifesto em { font-style: italic; color: var(--text-primary); }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: white;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 30px;
+      border-radius: 999px;
+      text-decoration: none;
+      box-shadow: 0 14px 30px rgba(56, 161, 105, 0.28);
+      transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    .btn-primary:hover {
+      background: var(--accent-deep);
+      box-shadow: 0 18px 36px rgba(56, 161, 105, 0.34);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 20px rgba(56, 161, 105, 0.24);
+    }
+
+    /* ── Try-it-now centered banner (with arrow pointing at launcher) ── */
+    .try-banner {
+      max-width: var(--max-width);
+      margin: 0 auto 40px;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+    }
+    .try-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 28px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: white;
+      background: var(--accent-warm);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(194, 104, 58, 0.30);
+      transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.18s ease;
+      animation: try-pulse 1.6s ease-in-out infinite;
+    }
+    .try-btn:hover {
+      background: #a8552a;
+      box-shadow: 0 16px 32px rgba(194, 104, 58, 0.40);
+    }
+    @keyframes try-pulse {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-4px); }
+    }
+    .try-caption {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-style: italic;
+      opacity: 0.85;
+    }
+
+    /* Big moving arrow — sits directly below the Try it now button and
+       points straight down at the centered floating launcher
+       (#broom-launcher), which we pin to bottom-center on this page. */
+    .try-arrow {
+      width: 72px;
+      height: 110px;
+      pointer-events: none;
+      animation: arrow-bob 1.4s ease-in-out infinite;
+    }
+    .try-arrow svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 6px 12px rgba(194, 104, 58, 0.35));
+      overflow: visible;
+    }
+    .try-arrow path {
+      fill: none;
+      stroke: var(--accent-warm);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .try-arrow .head {
+      fill: var(--accent-warm);
+      stroke: none;
+    }
+    @keyframes arrow-bob {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50%      { transform: translateY(8px) rotate(-3deg); }
+    }
+    @media (max-width: 640px) {
+      .try-arrow { width: 56px; height: 84px; }
+    }
+
+    /* Override the launcher's default bottom-right position so the
+       floating broom icon sits centered at the bottom of this landing
+       page, directly under the "Try it now" arrow. Higher specificity
+       (html body #...) wins over the launcher's own !important rules
+       regardless of stylesheet order. */
+    html body #broom-launcher-wrap {
+      right: auto !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+    }
+
+    /* ── CLUTTER STAGE ── */
+    .clutter-section {
+      max-width: var(--max-width);
+      margin: 0 auto 56px;
+      padding: 0 24px;
+    }
+    .clutter-stage {
+      position: relative;
+      min-height: 360px;
+      border: 1px dashed rgba(120, 140, 130, 0.4);
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(56,161,105,0.05), transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(194,104,58,0.06), transparent 50%),
+        color-mix(in srgb, var(--surface) 92%, white);
+      padding: 28px;
+      overflow: hidden;
+    }
+    .clutter-stage-label {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+    /* Each cute clutter item — sweepable. */
+    .clutter {
+      position: absolute;
+      cursor: pointer;
+      user-select: none;
+    }
+    .clutter-paper {
+      left: 18%;
+      top: 52%;
+      width: 70px;
+      height: 70px;
+      transform: rotate(-12deg);
+    }
+    .clutter-bin {
+      left: 5%;
+      top: 56%;
+      width: 76px;
+      height: 86px;
+    }
+    .clutter-wrapper {
+      right: 16%;
+      top: 18%;
+      width: 96px;
+      height: 56px;
+      transform: rotate(8deg);
+    }
+    .clutter-banner {
+      left: 26%;
+      top: 12%;
+      width: 220px;
+      height: 56px;
+      transform: rotate(-3deg);
+    }
+    .clutter-popup {
+      right: 6%;
+      bottom: 12%;
+      width: 180px;
+      height: 64px;
+      transform: rotate(5deg);
+    }
+    .clutter svg {
+      width: 100%; height: 100%; display: block;
+      /* Let mouseover hit the parent .clutter box instead of an inner path,
+         so the broom picker targets the whole element, not a single stroke. */
+      pointer-events: none;
+    }
+    .clutter {
+      /* Transparent backstop guarantees the full box is hit-testable. */
+      background-color: rgba(0,0,0,0);
+    }
+
+    /* Hand-written annotation labels — arrow paths are drawn by JS into
+       the .notes-overlay svg so each one actually points at its target. */
+    .note {
+      position: absolute;
+      font-family: 'Caveat', 'Bradley Hand', 'Comic Sans MS', cursive;
+      font-size: 19px;
+      font-weight: 700;
+      color: #c34a4a;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .note-paper   { left: 38%; bottom: 6%; }
+    .note-wrapper { right: 2%;  top: 2%; }
+    .note-banner  { left: 1%;  top: 2%; }
+    .note-popup   { left: 40%; bottom: 18%; }
+
+    .notes-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .notes-overlay path { fill: none; stroke: #c34a4a; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .notes-overlay polygon { fill: #c34a4a; }
+
+    /* ── VALUE PROPOSITION ── */
+    .value-prop {
+      max-width: var(--max-width);
+      margin: 0 auto 24px;
+      padding: 0 24px;
+    }
+    .value-prop h2 {
+      font-size: clamp(18px, 3vw, 22px);
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .value-prop p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ── VIDEO SECTION ── */
+    .video-wrap {
+      max-width: var(--max-width);
+      margin: 24px auto 64px;
+      padding: 0 24px;
+    }
+    .video-card {
+      padding: 28px;
+      border: 1px solid var(--border-soft);
+      border-radius: 24px;
+      background: color-mix(in srgb, var(--surface) 92%, white);
+      box-shadow: var(--shadow-strong);
+    }
+    .video-container {
+      position: relative;
+      display: block;
+      width: 100%;
+      padding-top: 56.25%;
+      background: rgba(15, 40, 25, 0.88);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(56, 161, 105, 0.18);
+    }
+    .video-container iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 24px;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    footer span { font-size: 12px; color: var(--text-secondary); opacity: 0.6; }
+  </style>
+  <!-- Handwriting font for the cute annotation labels -->
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-brand" href="index.html">
+      <img src="broom_files/broom-icon.png" alt="Broom">
+      Broom
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="hero-badge">Safari Extension</span>
+    <h1>Clean <span class="your">YOUR</span> Internet.<br><em>Sweep it.</em> Grow a Garden in its place.</h1>
+    <p class="hero-sub">
+      Click any element on any webpage — a banner, a sidebar, an ad — and sweep it away for good. Where you swept, you can plant something.
+    </p>
+    <a class="btn-primary" href="https://github.com/yago1994/broom/releases/latest">Download Broom for free</a>
+
+    <div class="manifesto">
+      <p>Most of the internet was designed to capture your attention, not to protect it. We navigate digital spaces filled with noise — sidebars, "premium" nudges, and infinite recommendations — that we never actually asked for.</p>
+      <p>I built Broom to change the power dynamic of the browser. Instead of accepting the UI you're given, Broom lets you curate the UI you need. It's a tool for reclaiming your focus by stripping away the digital clutter and replacing it with something that actually brings you peace (in my case, a growing garden of plants).</p>
+      <p>The web shouldn't be something you <em>consume</em> — it should be a space that works for you.</p>
+    </div>
+  </div>
+
+  <!-- TRY IT NOW (with arrow pointing straight down to the centered launcher) -->
+  <div class="try-banner">
+    <button class="try-btn" onclick="document.getElementById('broom-launcher')?.click();">
+      🧹 Try it now
+    </button>
+    <div class="try-caption">Click the launcher below</div>
+
+    <div class="try-arrow" aria-hidden="true">
+      <svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMax meet">
+        <path d="M50 10 C 84 42, 22 76, 50 110 S 56 138, 50 144" />
+        <polygon class="head" points="50,156 38,134 62,134" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- CLUTTER -->
+  <div class="clutter-section">
+    <div class="clutter-stage">
+      <div class="clutter-stage-label">↓ Practice on this clutter</div>
+
+      <!-- Cookie banner (top-left strip) -->
+      <div class="clutter clutter-banner" title="Sweep me with broom mode">
+        <svg viewBox="0 0 220 56" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="220" height="56" rx="8" fill="#fff8e1" stroke="#d6b86a" stroke-width="1.5"/>
+          <text x="10" y="22" font-family="Montserrat, sans-serif" font-size="9.5" fill="#7a5a18" font-weight="700">🍪 WE USE 1,247 COOKIES</text>
+          <text x="10" y="36" font-family="Montserrat, sans-serif" font-size="8" fill="#7a5a18">Including some we won't tell you about. Click anywhere to accept.</text>
+          <rect x="120" y="40" width="42" height="12" rx="3" fill="#7a5a18"/>
+          <text x="141" y="48.5" font-family="Montserrat, sans-serif" font-size="7" fill="#fff8e1" font-weight="700" text-anchor="middle">ACCEPT ALL</text>
+          <rect x="166" y="40" width="42" height="12" rx="3" fill="none" stroke="#7a5a18" stroke-width="1"/>
+          <text x="187" y="48.5" font-family="Montserrat, sans-serif" font-size="7" fill="#7a5a18" font-weight="700" text-anchor="middle">MANAGE 87</text>
+        </svg>
+      </div>
+
+      <!-- Trash bin -->
+      <div class="clutter clutter-bin" title="Sweep me with broom mode">
+        <svg viewBox="0 0 76 86" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="6" width="64" height="8" rx="2" fill="#6b7280"/>
+          <rect x="28" y="0" width="20" height="8" rx="2" fill="#6b7280"/>
+          <path d="M10 14 L66 14 L60 82 Q38 86 16 82 Z" fill="#9ca3af" stroke="#4b5563" stroke-width="1.5"/>
+          <line x1="22" y1="22" x2="26" y2="76" stroke="#4b5563" stroke-width="1.2"/>
+          <line x1="38" y1="22" x2="38" y2="76" stroke="#4b5563" stroke-width="1.2"/>
+          <line x1="54" y1="22" x2="50" y2="76" stroke="#4b5563" stroke-width="1.2"/>
+        </svg>
+      </div>
+
+      <!-- Wrinkled paper -->
+      <div class="clutter clutter-paper" title="Sweep me with broom mode">
+        <svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 14 L14 8 L52 6 L62 12 L66 56 L60 64 L18 66 L6 60 L4 36 Z"
+                fill="#fafaf6" stroke="#bdb7a4" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M14 8 L18 18 L12 22 L6 18 Z M62 12 L54 20 L60 28 L66 22 Z M60 64 L54 56 L48 62 L52 70 Z"
+                fill="rgba(0,0,0,0.06)" stroke="none"/>
+          <line x1="18" y1="26" x2="50" y2="24" stroke="#a8a294" stroke-width="1"/>
+          <line x1="16" y1="34" x2="54" y2="32" stroke="#a8a294" stroke-width="1"/>
+          <line x1="18" y1="42" x2="46" y2="40" stroke="#a8a294" stroke-width="1"/>
+          <line x1="16" y1="50" x2="52" y2="48" stroke="#a8a294" stroke-width="1"/>
+        </svg>
+      </div>
+
+      <!-- Chocolate wrapper -->
+      <div class="clutter clutter-wrapper" title="Sweep me with broom mode">
+        <svg viewBox="0 0 96 56" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 28 Q 2 8, 18 10 L 80 8 Q 96 14, 90 32 L 88 44 Q 70 54, 40 52 L 16 50 Q 0 48, 4 28 Z"
+                fill="#7b3f1a" stroke="#4a2410" stroke-width="1.4" stroke-linejoin="round"/>
+          <path d="M14 18 L 78 16 L 82 36 L 18 38 Z" fill="#c7a674" stroke="#7b3f1a" stroke-width="1"/>
+          <text x="48" y="32" font-family="Georgia, serif" font-size="9" fill="#4a2410" font-weight="700" text-anchor="middle" font-style="italic">cocoa 88%</text>
+          <path d="M4 28 Q 12 24, 14 18" stroke="#4a2410" stroke-width="0.8" fill="none"/>
+        </svg>
+      </div>
+
+      <!-- Newsletter popup -->
+      <div class="clutter clutter-popup" title="Sweep me with broom mode">
+        <svg viewBox="0 0 180 64" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="180" height="64" rx="8" fill="#fff" stroke="#d8b8d8" stroke-width="1.5"/>
+          <text x="10" y="16" font-family="Montserrat, sans-serif" font-size="9" font-weight="700" fill="#b45fa6">📬 GET 10% OFF!!</text>
+          <text x="10" y="28" font-family="Montserrat, sans-serif" font-size="7.5" fill="#666">Subscribe to our newsletter.</text>
+          <rect x="10" y="36" width="110" height="16" rx="3" fill="#fafafa" stroke="#ccc"/>
+          <text x="14" y="46" font-family="Montserrat, sans-serif" font-size="6.5" fill="#aaa">your@email.com</text>
+          <rect x="124" y="36" width="48" height="16" rx="3" fill="#b45fa6"/>
+          <text x="148" y="46.5" font-family="Montserrat, sans-serif" font-size="7" fill="#fff" font-weight="700" text-anchor="middle">SUBSCRIBE</text>
+          <text x="166" y="12" font-family="Arial, sans-serif" font-size="11" fill="#999" font-weight="700">×</text>
+        </svg>
+      </div>
+
+      <!-- Handwritten annotations — text only; arrows drawn into .notes-overlay -->
+      <div class="note note-banner"   data-note-target=".clutter-banner">clean this!</div>
+      <div class="note note-paper"    data-note-target=".clutter-paper">what's this doing here?</div>
+      <div class="note note-wrapper"  data-note-target=".clutter-wrapper">clean this!</div>
+      <div class="note note-popup"    data-note-target=".clutter-popup">ugh, sweep this!</div>
+
+      <svg class="notes-overlay" aria-hidden="true"></svg>
+    </div>
+  </div>
+
+  <!-- VALUE PROPOSITION -->
+  <div class="value-prop">
+    <h2>You make the garden</h2>
+    <p>Every page you sweep leaves a little plot. Plant a fern, a monstera, a cherry blossom. Water them with a click. Make the internet your garden.</p>
+  </div>
+
+  <!-- VIDEO -->
+  <div class="video-wrap">
+    <div class="video-card">
+      <div class="video-container">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/48s9tw1tFBA?si=ZD3OBK7aQNiNnfu6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 Yago Arconada</span>
+    <span style="font-size:11px;opacity:0.35;">v1.0 (1)</span>
+  </footer>
+
+  <!-- ── Broom runtime — full extension built into the page ─────────────── -->
+  <script>
+    (function () {
+      const STORE_KEY = "broom:portfolio";
+      let store = {};
+      try { store = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; } catch (e) {}
+      const persist = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) {} };
+      const listeners = [];
+      const pick = (key) => {
+        if (key == null) return { ...store };
+        if (typeof key === "string") return { [key]: store[key] };
+        if (Array.isArray(key)) return key.reduce((a, k) => (a[k] = store[k], a), {});
+        if (typeof key === "object") {
+          const out = {};
+          for (const k of Object.keys(key)) out[k] = (k in store) ? store[k] : key[k];
+          return out;
+        }
+        return {};
+      };
+      window.chrome = window.chrome || {};
+      window.chrome.storage = {
+        local: {
+          get: (key) => Promise.resolve(pick(key)),
+          set: (obj) => {
+            const changes = {};
+            for (const k of Object.keys(obj)) {
+              changes[k] = { oldValue: store[k], newValue: obj[k] };
+              store[k] = obj[k];
+            }
+            persist();
+            for (const fn of listeners) { try { fn(changes, "local"); } catch (e) {} }
+            return Promise.resolve();
+          }
+        },
+        onChanged: { addListener: (fn) => listeners.push(fn) }
+      };
+      window.chrome.runtime = {
+        getURL: (p) => "broom_files/" + p,
+        getManifest: () => ({ version: "1.0 (1)" }),
+        onMessage: { addListener: () => {} }
+      };
+    })();
+  </script>
+  <script src="broom_files/plants.js"></script>
+  <script src="broom_files/content.js"></script>
+
+  <script>
+    // Draw a curved arrow from each .note to the edge of its target .clutter.
+    (function () {
+      const SVG_NS = "http://www.w3.org/2000/svg";
+
+      function edgePoint(rect, awayX, awayY) {
+        // Find where the ray from the rect's center toward (awayX, awayY)
+        // intersects the rect's boundary.
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = awayX - cx;
+        const dy = awayY - cy;
+        if (dx === 0 && dy === 0) return [cx, cy];
+        const hx = rect.width / 2;
+        const hy = rect.height / 2;
+        const tx = dx !== 0 ? hx / Math.abs(dx) : Infinity;
+        const ty = dy !== 0 ? hy / Math.abs(dy) : Infinity;
+        const t = Math.min(tx, ty);
+        return [cx + dx * t, cy + dy * t];
+      }
+
+      const observedTargets = new WeakSet();
+      let resizeObs = null;
+
+      function drawArrows() {
+        const stage = document.querySelector(".clutter-stage");
+        const overlay = stage && stage.querySelector(".notes-overlay");
+        if (!stage || !overlay) return;
+
+        const sRect = stage.getBoundingClientRect();
+        overlay.setAttribute("viewBox", `0 0 ${stage.clientWidth} ${stage.clientHeight}`);
+        overlay.innerHTML = "";
+
+        const notes = stage.querySelectorAll(".note[data-note-target]");
+        notes.forEach((note) => {
+          const target = stage.querySelector(note.dataset.noteTarget);
+          if (!target) return;
+
+          const nR = note.getBoundingClientRect();
+          const tR = target.getBoundingClientRect();
+
+          // If broom (or anything else) has collapsed the target to 0×0
+          // (e.g. `display: none`), there's nothing to point at — skip it so
+          // the arrow disappears with the swept clutter.
+          if (tR.width === 0 || tR.height === 0) return;
+          if (nR.width === 0 || nR.height === 0) return;
+
+          if (resizeObs && !observedTargets.has(target)) {
+            resizeObs.observe(target);
+            observedTargets.add(target);
+          }
+
+          // Note's edge point closest to target center, target's edge point
+          // closest to note center.
+          const tCx = tR.left + tR.width / 2;
+          const tCy = tR.top + tR.height / 2;
+          const nCx = nR.left + nR.width / 2;
+          const nCy = nR.top + nR.height / 2;
+
+          // Pad start outside the text so it doesn't crash into letters.
+          let [sxRaw, syRaw] = edgePoint(nR, tCx, tCy);
+          let [exRaw, eyRaw] = edgePoint(tR, nCx, nCy);
+
+          // Pull start a few px further away from note, push end a few px
+          // back toward note so the arrowhead lands on (not inside) target.
+          const vx = exRaw - sxRaw;
+          const vy = eyRaw - syRaw;
+          const len = Math.hypot(vx, vy) || 1;
+          const ux = vx / len, uy = vy / len;
+          const sx = sxRaw + ux * 4 - sRect.left;
+          const sy = syRaw + uy * 4 - sRect.top;
+          const ex = exRaw - ux * 6 - sRect.left;
+          const ey = eyRaw - uy * 6 - sRect.top;
+
+          // Bow the curve perpendicular to the line, with a randomized
+          // direction per note for a hand-drawn feel.
+          const perpX = -uy, perpY = ux;
+          const lineLen = Math.hypot(ex - sx, ey - sy);
+          const bow = Math.min(60, lineLen * 0.28) * (note.dataset.curve === "down" ? -1 : 1);
+          const mx = (sx + ex) / 2 + perpX * bow;
+          const my = (sy + ey) / 2 + perpY * bow;
+
+          const path = document.createElementNS(SVG_NS, "path");
+          path.setAttribute("d", `M ${sx} ${sy} Q ${mx} ${my} ${ex} ${ey}`);
+          overlay.appendChild(path);
+
+          // Arrowhead: a small triangle aligned with the tangent at the end.
+          // Tangent at end of quadratic Bézier = 2 * (P2 - P1).
+          const tanX = ex - mx;
+          const tanY = ey - my;
+          const tanLen = Math.hypot(tanX, tanY) || 1;
+          const ax = tanX / tanLen;
+          const ay = tanY / tanLen;
+          const headLen = 11;
+          const headW = 7;
+          const baseX = ex - ax * headLen;
+          const baseY = ey - ay * headLen;
+          const lx = baseX + (-ay) * headW;
+          const ly = baseY + (ax) * headW;
+          const rx = baseX - (-ay) * headW;
+          const ry = baseY - (ax) * headW;
+          const head = document.createElementNS(SVG_NS, "polygon");
+          head.setAttribute("points", `${ex},${ey} ${lx},${ly} ${rx},${ry}`);
+          overlay.appendChild(head);
+        });
+      }
+
+      // Tag a couple of notes with a curve direction for variation.
+      document.querySelector(".note-banner")?.setAttribute("data-curve", "down");
+      document.querySelector(".note-popup")?.setAttribute("data-curve", "down");
+
+      let scheduled = false;
+      const schedule = () => {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(() => { scheduled = false; drawArrows(); });
+      };
+      if (document.readyState === "complete" || document.readyState === "interactive") schedule();
+      else document.addEventListener("DOMContentLoaded", schedule, { once: true });
+      window.addEventListener("load", schedule);
+      window.addEventListener("resize", schedule);
+
+      // Broom sweeps clutter by injecting `display:none !important` into a
+      // <style> tag, not by mutating each target directly. ResizeObserver
+      // catches the resulting 0×0 collapse on the target; MutationObserver
+      // catches the stylesheet insertion + any direct style/class flips.
+      if (typeof ResizeObserver !== "undefined") {
+        resizeObs = new ResizeObserver(schedule);
+        const stage = document.querySelector(".clutter-stage");
+        if (stage) {
+          resizeObs.observe(stage);
+          stage.querySelectorAll(".note[data-note-target]").forEach((n) => {
+            resizeObs.observe(n);
+            const t = stage.querySelector(n.dataset.noteTarget);
+            if (t) { resizeObs.observe(t); observedTargets.add(t); }
+          });
+        }
+      }
+      new MutationObserver(schedule).observe(document.documentElement, {
+        attributes: true, subtree: true, childList: true,
+        attributeFilter: ["style", "class", "hidden"]
+      });
+    })();
+  </script>
+
+</body>
+</html>
