@@ -114,6 +114,13 @@ function chooseRandomPlant(hideRule) {
 
 // ── CSS selector finder ───────────────────────────────────────────────────────
 
+// Build a CSS selector that uniquely identifies `el`. Prefer class-based
+// parts; only fall back to :nth-of-type when classes can't disambiguate.
+// Eagerly using :nth-of-type makes hide rules brittle: any time a sibling
+// is inserted (e.g. plant mode dropping empty slots next to swept
+// elements), the indices shift, the primary selector silently stops
+// matching, and the `display: none !important` rule effectively evaporates
+// — bringing swept content back into view.
 function buildSelector(el) {
   if (el.id && isSafeId(el.id) && document.querySelectorAll(`#${cssEscape(el.id)}`).length === 1) {
     return `#${cssEscape(el.id)}`;
@@ -121,20 +128,53 @@ function buildSelector(el) {
   const parts = [];
   let node = el;
   while (node && node.nodeType === 1 && node !== document.documentElement) {
-    let part = node.tagName.toLowerCase();
+    const base = node.tagName.toLowerCase();
     if (node.id && isSafeId(node.id)) { parts.unshift(`#${cssEscape(node.id)}`); break; }
     const stable = Array.from(node.classList).filter(isStableClass).slice(0, 2);
-    if (stable.length) part += "." + stable.map(cssEscape).join(".");
+    let part = base + (stable.length ? "." + stable.map(cssEscape).join(".") : "");
+
+    // First try without :nth-of-type — robust against sibling shuffles.
+    parts.unshift(part);
+    try {
+      const matches = document.querySelectorAll(parts.join(" > "));
+      if (matches.length === 1 && matches[0] === el) return parts.join(" > ");
+    } catch { /* */ }
+
+    // Class-only wasn't enough at this level — disambiguate with
+    // :nth-of-type only when actually needed, then retry.
     const parent = node.parentElement;
     if (parent) {
       const sameTag = Array.from(parent.children).filter((c) => c.tagName === node.tagName);
-      if (sameTag.length > 1) part += `:nth-of-type(${sameTag.indexOf(node) + 1})`;
+      if (sameTag.length > 1) {
+        parts[0] = part + `:nth-of-type(${sameTag.indexOf(node) + 1})`;
+        try {
+          const matches = document.querySelectorAll(parts.join(" > "));
+          if (matches.length === 1 && matches[0] === el) return parts.join(" > ");
+        } catch { /* */ }
+      }
     }
-    parts.unshift(part);
+
     node = parent;
-    try { if (document.querySelectorAll(parts.join(" > ")).length === 1) return parts.join(" > "); } catch { /* */ }
   }
   return parts.join(" > ");
+}
+
+// Build a list of fallback selectors that don't rely on positional
+// pseudo-classes. Used when the primary selector might get released by
+// sibling reflow (e.g. plant slots inserted next to swept elements).
+function buildSelectorFallbacks(el, primary) {
+  const fallbacks = [];
+  const seen = new Set([primary]);
+  const push = (sel) => {
+    if (!sel || seen.has(sel)) return;
+    try { if (document.querySelector(sel) === el) { fallbacks.push(sel); seen.add(sel); } } catch { /* */ }
+  };
+  const stable = Array.from(el.classList).filter(isStableClass);
+  for (let n = Math.min(stable.length, 3); n >= 1; n--) {
+    push(el.tagName.toLowerCase() + "." + stable.slice(0, n).map(cssEscape).join("."));
+  }
+  if (el.id && isSafeId(el.id)) push(`#${cssEscape(el.id)}`);
+  return fallbacks;
 }
 
 function isStableClass(c) {
@@ -168,7 +208,12 @@ function applyRule(rule, options) {
   if (cachedPrefs.showChanges === false) { removeRule(rule.id); return; }
   const { kind } = rule.payload;
   if (kind === "hide") {
-    styleCache.set(rule.id, `${rule.selector.primary} { display: none !important; }`);
+    // Include fallback selectors in the hide CSS so brittle positional
+    // primaries (e.g. :nth-of-type) can't be silently released when
+    // plant mode inserts sibling slots and shuffles tag indices.
+    const fb = Array.isArray(rule.selector.fallbacks) ? rule.selector.fallbacks : [];
+    const sels = [rule.selector.primary, ...fb].filter(Boolean).join(", ");
+    styleCache.set(rule.id, `${sels} { display: none !important; }`);
     rebuildStyleTag();
   } else if (kind === "restyle") {
     styleCache.set(rule.id, scopeCss(rule.selector.primary, rule.payload.css));
@@ -186,6 +231,39 @@ function applyRule(rule, options) {
 // dimensions so the plant can never visually exceed the area the user
 // cleared. Inside, the plant scales down via max-width/max-height: 100%.
 
+// Capture position info for a soon-to-be-hidden element so plant mode
+// can drop the slot at the same visual spot. Critical when the anchor
+// was absolutely / fixed positioned (e.g. floating buttons, or the
+// items inside the broom demo's .clutter-stage), because a freshly
+// inserted `position: relative` slot would otherwise flow into the
+// top of the parent instead of landing where the original SVG sat.
+function captureAnchorPosition(el) {
+  if (!el || !el.isConnected) return null;
+  const cs = getComputedStyle(el);
+  const pos = cs.position;
+  if (pos !== "absolute" && pos !== "fixed") return null;
+  return {
+    position: pos,
+    left: el.offsetLeft,
+    top: el.offsetTop,
+    width: el.offsetWidth,
+    height: el.offsetHeight,
+  };
+}
+
+// Override the slot's default `position: relative !important` so it
+// lands where the original swept element was. inline `setProperty`
+// with `important` is required because the stylesheet rule itself is
+// `!important`.
+function applyAnchorPositionToSlot(slot, anchorPosition) {
+  if (!anchorPosition) return;
+  slot.style.setProperty("position", anchorPosition.position, "important");
+  slot.style.setProperty("left", `${anchorPosition.left}px`, "important");
+  slot.style.setProperty("top", `${anchorPosition.top}px`, "important");
+  if (anchorPosition.width)  slot.style.setProperty("width",  `${anchorPosition.width}px`,  "important");
+  if (anchorPosition.height) slot.style.setProperty("height", `${anchorPosition.height}px`, "important");
+}
+
 function applyPlant(rule, options) {
   const anchor = resolveSelector(rule.selector.primary, rule.selector.fallbacks);
   if (!anchor) return;
@@ -196,16 +274,18 @@ function applyPlant(rule, options) {
   slot.setAttribute(INJECTED_ATTR, rule.id);
   slot.className = "broom-plant-slot";
 
+  const sourceHide = appliedRules.find((r) => r.id === (rule.payload && rule.payload.sourceRuleId));
   const box = (rule.payload && rule.payload.originalBox)
-    || (() => {
-      const hide = appliedRules.find((r) => r.id === (rule.payload && rule.payload.sourceRuleId));
-      return hide && hide.payload && hide.payload.originalBox;
-    })()
+    || (sourceHide && sourceHide.payload && sourceHide.payload.originalBox)
     || null;
   if (box && box.width && box.height) {
     slot.style.maxWidth = `${box.width}px`;
     slot.style.maxHeight = `${box.height}px`;
   }
+  const anchorPosition = (rule.payload && rule.payload.anchorPosition)
+    || (sourceHide && sourceHide.payload && sourceHide.payload.anchorPosition)
+    || null;
+  applyAnchorPositionToSlot(slot, anchorPosition);
 
   const plant = renderPlant(rule.payload.plant);
   if (options && options.enterAnimation) {
@@ -1601,13 +1681,14 @@ function onClick(e) {
 
   const target = resolved.target;
   const selector = buildSelector(target);
+  const fallbacks = buildSelectorFallbacks(target, selector);
   spawnSparklePuff(e.clientX, e.clientY, 6, 50);
   // Stay in brooming mode so multiple elements can be wiped in a row.
   // Clear the current target/visuals; mouseover will repopulate after the sweep.
   pickerTarget = null;
   document.getElementById(HIGHLIGHT_ID)?.style.setProperty("opacity", "0");
   hideSelectorTag();
-  void playSweepAndHide(target, selector, { x: e.clientX, y: e.clientY }).then(() => {
+  void playSweepAndHide(target, selector, { x: e.clientX, y: e.clientY }, fallbacks).then(() => {
     document.getElementById(HIGHLIGHT_ID)?.style.removeProperty("opacity");
   });
 }
@@ -1636,13 +1717,14 @@ function globalKeydown(e) {
       return;
     }
     const selector = buildSelector(target);
+    const fallbacks = buildSelectorFallbacks(target, selector);
     // Stay in brooming mode so the user can wipe multiple elements in a row.
     // Just clear the current target + visuals; the next mouseover repopulates.
     pickerTarget = null;
     document.getElementById(HIGHLIGHT_ID)?.style.setProperty("opacity", "0");
     hideSelectorTag();
     const r = target.getBoundingClientRect();
-    void playSweepAndHide(target, selector, { x: r.right - 8, y: r.top + r.height / 2 }).then(() => {
+    void playSweepAndHide(target, selector, { x: r.right - 8, y: r.top + r.height / 2 }, fallbacks).then(() => {
       document.getElementById(HIGHLIGHT_ID)?.style.removeProperty("opacity");
     });
   }
@@ -1838,21 +1920,22 @@ function closeSettingsPopover() {
 
 // ── Sweep animation — broom passes over the element, sparkles fly out ─────────
 
-async function playSweepAndHide(el, selector, from = null) {
+async function playSweepAndHide(el, selector, from = null, fallbacks = []) {
   if (!el || !el.isConnected) {
     // Element gone — just persist the rule.
-    const rule = makeHideRule(selector, null);
+    const rule = makeHideRule(selector, null, fallbacks, null);
     await upsertRuleLocal(rule);
     applyRule(rule);
     return;
   }
   ensurePickerStyles();
   const rect = el.getBoundingClientRect();
+  const anchorPosition = captureAnchorPosition(el);
   // Skip animation for tiny or off-screen elements.
   const tooSmall = rect.width < 8 || rect.height < 8;
   const offscreen = rect.bottom < 0 || rect.top > innerHeight || rect.right < 0 || rect.left > innerWidth;
   if (tooSmall || offscreen) {
-    const rule = makeHideRule(selector, { width: rect.width, height: rect.height });
+    const rule = makeHideRule(selector, { width: rect.width, height: rect.height }, fallbacks, anchorPosition);
     await upsertRuleLocal(rule);
     applyRule(rule);
     return;
@@ -1964,7 +2047,7 @@ async function playSweepAndHide(el, selector, from = null) {
   await new Promise((r) => setTimeout(r, 950));
 
   // Persist rule (display:none takes over from the animation).
-  const rule = makeHideRule(selector, { width: rect.width, height: rect.height });
+  const rule = makeHideRule(selector, { width: rect.width, height: rect.height }, fallbacks, anchorPosition);
   await upsertRuleLocal(rule);
   applyRule(rule);
 
@@ -2131,12 +2214,13 @@ function openPanel(el) {
 
 function closePanel() { document.getElementById(PANEL_ID)?.remove(); }
 
-function makeHideRule(selector, originalBox) {
+function makeHideRule(selector, originalBox, fallbacks = [], anchorPosition = null) {
   const payload = { kind: "hide" };
   if (originalBox && originalBox.width && originalBox.height) {
     payload.originalBox = { width: originalBox.width, height: originalBox.height };
   }
-  return { id: uuid(), hostname: location.hostname, type: "hide", selector: { primary: selector, fallbacks: [], semantic: "" }, payload, enabled: true, createdAt: Date.now(), lastAppliedAt: null, lastFailedAt: null, failCount: 0 };
+  if (anchorPosition) payload.anchorPosition = anchorPosition;
+  return { id: uuid(), hostname: location.hostname, type: "hide", selector: { primary: selector, fallbacks: Array.isArray(fallbacks) ? fallbacks : [], semantic: "" }, payload, enabled: true, createdAt: Date.now(), lastAppliedAt: null, lastFailedAt: null, failCount: 0 };
 }
 
 // ── Planting: empty slot affordances + click handler + toast ─────────────────
@@ -2317,6 +2401,7 @@ function createEmptySlot(hideRule) {
   slot.setAttribute("aria-label", "Plant something here");
   slot.style.width = `${w}px`;
   slot.style.height = `${h}px`;
+  applyAnchorPositionToSlot(slot, hideRule.payload && hideRule.payload.anchorPosition);
 
   const soil = document.createElement("div");
   soil.className = "broom-empty-slot-soil";
@@ -2372,6 +2457,7 @@ function makePlantRule(hideRule, plant) {
       decoration: "plant",
       sourceRuleId: hideRule.id,
       originalBox: (hideRule.payload && hideRule.payload.originalBox) || null,
+      anchorPosition: (hideRule.payload && hideRule.payload.anchorPosition) || null,
       plant,
       generatedBy: "random"
     },
