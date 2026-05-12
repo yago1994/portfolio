@@ -149,7 +149,7 @@
       <p class="updated">Last updated: May 12, 2026</p>
 
       <h2>The short version</h2>
-      <p>Broom does not collect, transmit, sell, or share any personal data. Everything you do in the extension stays on your device.</p>
+      <p>Broom collects a small amount of anonymous usage data so we can tell how many people use it. We do not collect personal information, page content, browsing history, or anything that could identify you. The rules you create stay on your device.</p>
 
       <h2>What Broom stores</h2>
       <p>When you sweep an element or plant a garden, Broom saves the rule (a CSS selector and the change to apply) in your browser's local extension storage. This data:</p>
@@ -160,7 +160,12 @@
       </ul>
 
       <h2>Network requests</h2>
-      <p>The extension makes a single network request, to <code>yagoarconada.com/apps/broom_files/app-update.json</code>, to check whether a newer version of Broom is available. The request contains no personal data beyond what your browser sends with any HTTP request (e.g. IP address, user-agent). Server logs are not analyzed or retained beyond standard web server defaults.</p>
+      <p>The extension makes two kinds of network requests:</p>
+      <ul>
+        <li><strong>Version check.</strong> A single request to <code>yagoarconada.com/apps/broom_files/app-update.json</code> to see whether a newer version of Broom is available.</li>
+        <li><strong>Anonymous usage events.</strong> Broom pings a small analytics endpoint hosted on Cloudflare Workers (<code>broom-analytics.pasalacabra.workers.dev</code>) with three event types: <em>install</em> (once, the first time you run the extension), <em>daily_active</em> (once per calendar day if you have the extension open), and <em>site_saved</em> (the first time you save a rule on a new site). Each event includes a random <code>install_id</code> generated locally on first run and the extension version — nothing else. We do not send your IP, your identity, the site you are on, the rule you saved, the selector you used, or any page content. The hostname of sites you save rules on is <em>not</em> transmitted.</li>
+      </ul>
+      <p>All requests contain the standard metadata your browser attaches to any HTTP request (IP address, user-agent). We use that information only to count distinct devices and detect abuse; we do not link it to any other dataset and we do not retain it beyond what Cloudflare logs by default.</p>
 
       <h2>Page content</h2>
       <p>Broom reads the structure of the page you are editing in order to build a CSS selector for the element you point at. Page content is processed locally and is never transmitted off your device.</p>
@@ -173,10 +178,10 @@
       </ul>
 
       <h2>Third parties</h2>
-      <p>Broom does not use analytics, advertising, or third-party trackers. There are no third-party scripts in the extension.</p>
+      <p>The analytics endpoint and the update-check file are both hosted on <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare</a>, which acts as a service provider for Broom. Cloudflare's standard request logging applies. We do not use advertising networks, behavioral trackers, or any third-party analytics SDK (no Google Analytics, no Mixpanel, etc.). There are no third-party scripts bundled into the extension itself.</p>
 
       <h2>Children</h2>
-      <p>Broom does not knowingly collect any data from anyone, including children under 13.</p>
+      <p>Broom is not directed at children. The anonymous usage events described above contain no personal data, so we have no way to knowingly identify a user of any age.</p>
 
       <h2>Changes</h2>
       <p>If this policy ever changes, the updated date at the top of this page will change with it. Past versions are visible in this site's <a href="https://github.com/yago1994/yago1994.github.io" target="_blank" rel="noopener">git history</a>.</p>
