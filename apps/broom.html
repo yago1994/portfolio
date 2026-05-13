@@ -777,6 +777,47 @@
   </script>
 
   <script>
+    // Browser-aware download buttons. Firefox & Safari versions are live;
+    // the Chrome Web Store listing is still in review, so for Chromium
+    // users (Chrome, Edge, Arc, Brave, Opera) we show a "coming soon" state.
+    (function () {
+      const ua = navigator.userAgent;
+      const isFirefox  = /Firefox\//.test(ua) && !/Seamonkey\//.test(ua);
+      const isChromium = /Chrome\//.test(ua) || /Chromium\//.test(ua) || /Edg\//.test(ua) || /OPR\//.test(ua);
+      const isSafari   = /Safari\//.test(ua) && !isChromium;
+
+      let url = null;
+      let label = "⬇ Download for free";
+
+      if (isFirefox) {
+        url = "https://addons.mozilla.org/firefox/downloads/file/4803222/fe61e0d3b087429fa867-1.0.xpi";
+        label = "⬇ Add to Firefox";
+      } else if (isSafari) {
+        url = "https://github.com/yago1994/broom/releases/download/Live/Broom.zip";
+        label = "⬇ Download for Safari";
+      } else if (isChromium) {
+        url = null;
+        label = "⏳ Chrome — coming soon";
+      }
+
+      document.querySelectorAll("a.btn-primary").forEach((a) => {
+        a.textContent = label;
+        if (url) {
+          a.href = url;
+        } else {
+          a.removeAttribute("href");
+          a.style.opacity = "0.65";
+          a.style.cursor = "not-allowed";
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            alert("The Chrome Web Store version is still under review. Coming soon!");
+          });
+        }
+      });
+    })();
+  </script>
+
+  <script>
     // "Try for free" button — pulse the launcher AND redraw / flash the
     // "Your Broom is here" hint so the user's eye flows from the CTA
     // straight to the floating broom in the bottom-right corner.
