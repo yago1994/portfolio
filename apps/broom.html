@@ -796,23 +796,18 @@
         url = "https://github.com/yago1994/broom/releases/download/Live/Broom.zip";
         label = "⬇ Download for Safari";
       } else if (isChromium) {
-        url = null;
-        label = "⏳ Chrome — coming soon";
+        url = "https://chromewebstore.google.com/detail/broom-bloom/chedodndakjmpmanldcgednameldbhgd";
+        const isEdge  = /Edg\//.test(ua);
+        const isOpera = /OPR\//.test(ua);
+        const isBrave = navigator.brave != null;
+        label = isEdge ? "⬇ Add to Edge" : isOpera ? "⬇ Add to Opera" : isBrave ? "⬇ Add to Brave" : "⬇ Add to Chrome";
+      } else {
+        url = "https://chromewebstore.google.com/detail/broom-bloom/chedodndakjmpmanldcgednameldbhgd";
       }
 
       document.querySelectorAll("a.btn-primary").forEach((a) => {
         a.textContent = label;
-        if (url) {
-          a.href = url;
-        } else {
-          a.removeAttribute("href");
-          a.style.opacity = "0.65";
-          a.style.cursor = "not-allowed";
-          a.addEventListener("click", (e) => {
-            e.preventDefault();
-            alert("The Chrome Web Store version is still under review. Coming soon!");
-          });
-        }
+        a.href = url;
       });
     })();
   </script>
